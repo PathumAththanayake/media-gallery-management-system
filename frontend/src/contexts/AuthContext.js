@@ -3,6 +3,39 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+// Create axios instance with base URL
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+  withCredentials: true
+});
+
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -16,26 +49,20 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Set up axios defaults
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-  }, []);
-
-  // Check if user is authenticated on app load
+  // Check if user is logged in on app start
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
-      if (token) {
+      const savedUser = localStorage.getItem('user');
+      
+      if (token && savedUser) {
         try {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`);
+          const response = await api.get('/api/auth/me');
           setUser(response.data.user);
         } catch (error) {
           console.error('Auth check failed:', error);
           localStorage.removeItem('token');
-          delete axios.defaults.headers.common['Authorization'];
+          localStorage.removeItem('user');
         }
       }
       setLoading(false);
@@ -44,18 +71,16 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (credentials) => {
     try {
       setError(null);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
-        email,
-        password
-      });
-
+      const response = await api.post('/api/auth/login', credentials);
       const { token, user } = response.data;
+      
       localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
+      
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed';
@@ -67,18 +92,34 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setError(null);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, userData);
-      
-      // If registration includes token and user data, log them in immediately
-      if (response.data.token && response.data.user) {
-        localStorage.setItem('token', response.data.token);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-        setUser(response.data.user);
-      }
-      
-      return { success: true, message: response.data.message };
+      const response = await api.post('/api/auth/register', userData);
+      return { success: true, data: response.data };
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
+      setError(message);
+      return { success: false, error: message };
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setError(null);
+  };
+
+  const updateProfile = async (userData) => {
+    try {
+      setError(null);
+      const response = await api.put('/api/users/profile', userData);
+      const updatedUser = response.data.user;
+      
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Profile update failed';
       setError(message);
       return { success: false, error: message };
     }
@@ -87,16 +128,8 @@ export const AuthProvider = ({ children }) => {
   const verifyOTP = async (email, otp) => {
     try {
       setError(null);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/verify-otp`, {
-        email,
-        otp
-      });
-
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(user);
-      return { success: true };
+      const response = await api.post('/api/auth/verify-otp', { email, otp });
+      return { success: true, data: response.data };
     } catch (error) {
       const message = error.response?.data?.message || 'OTP verification failed';
       setError(message);
@@ -107,10 +140,8 @@ export const AuthProvider = ({ children }) => {
   const resendOTP = async (email) => {
     try {
       setError(null);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/resend-otp`, {
-        email
-      });
-      return { success: true, message: response.data.message };
+      const response = await api.post('/api/auth/resend-otp', { email });
+      return { success: true, data: response.data };
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to resend OTP';
       setError(message);
@@ -121,12 +152,10 @@ export const AuthProvider = ({ children }) => {
   const forgotPassword = async (email) => {
     try {
       setError(null);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/forgot-password`, {
-        email
-      });
-      return { success: true, message: response.data.message };
+      const response = await api.post('/api/auth/forgot-password', { email });
+      return { success: true, data: response.data };
     } catch (error) {
-      const message = error.response?.data?.message || 'Password reset request failed';
+      const message = error.response?.data?.message || 'Failed to send reset email';
       setError(message);
       return { success: false, error: message };
     }
@@ -135,74 +164,17 @@ export const AuthProvider = ({ children }) => {
   const resetPassword = async (email, otp, newPassword) => {
     try {
       setError(null);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/reset-password`, {
+      const response = await api.post('/api/auth/reset-password', {
         email,
         otp,
         newPassword
       });
-      return { success: true, message: response.data.message };
+      return { success: true, data: response.data };
     } catch (error) {
       const message = error.response?.data?.message || 'Password reset failed';
       setError(message);
       return { success: false, error: message };
     }
-  };
-
-  const googleLogin = () => {
-    window.location.href = `${process.env.REACT_APP_API_URL}/api/auth/google`;
-  };
-
-  const logout = async () => {
-    try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/logout`);
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      localStorage.removeItem('token');
-      delete axios.defaults.headers.common['Authorization'];
-      setUser(null);
-    }
-  };
-
-  const updateProfile = async (profileData) => {
-    try {
-      setError(null);
-      const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/auth/profile`, profileData, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      setUser(response.data.user);
-      return { success: true, message: response.data.message };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Profile update failed';
-      setError(message);
-      return { success: false, error: message };
-    }
-  };
-
-  const setUserData = (userData) => {
-    setUser(userData);
-  };
-
-  const changePassword = async (currentPassword, newPassword) => {
-    try {
-      setError(null);
-      const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/auth/change-password`, {
-        currentPassword,
-        newPassword
-      });
-      return { success: true, message: response.data.message };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Password change failed';
-      setError(message);
-      return { success: false, error: message };
-    }
-  };
-
-  const clearError = () => {
-    setError(null);
   };
 
   const value = {
@@ -211,16 +183,13 @@ export const AuthProvider = ({ children }) => {
     error,
     login,
     register,
+    logout,
+    updateProfile,
     verifyOTP,
     resendOTP,
     forgotPassword,
     resetPassword,
-    googleLogin,
-    logout,
-    updateProfile,
-    setUser: setUserData,
-    changePassword,
-    clearError
+    api
   };
 
   return (
