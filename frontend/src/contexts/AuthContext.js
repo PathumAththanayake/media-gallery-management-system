@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://your-railway-backend.railway.app',
+  baseURL: process.env.REACT_APP_API_URL || 'https://media-gallery-management-system-production.up.railway.app',
   withCredentials: true
 });
 
