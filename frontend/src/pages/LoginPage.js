@@ -65,7 +65,7 @@ const LoginPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await login(formData.email, formData.password);
+    const result = await login(formData);
     
     if (result.success) {
       navigate('/');
