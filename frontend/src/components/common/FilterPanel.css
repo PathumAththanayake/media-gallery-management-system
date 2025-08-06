@@ -1,0 +1,179 @@
+.filter-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.filter-panel:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 16px;
+}
+
+.filter-icon {
+  margin-right: 8px;
+  color: #4a5568;
+}
+
+.expand-button {
+  background: none;
+  border: none;
+  color: #4a5568;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expand-button:hover {
+  background-color: #e2e8f0;
+  color: #2d3748;
+}
+
+.filter-content {
+  padding: 20px;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #2d3748;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.filter-select:hover {
+  border-color: #cbd5e0;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.clear-filters-button {
+  width: 100%;
+  padding: 12px;
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 16px;
+}
+
+.clear-filters-button:hover {
+  background: #c53030;
+  transform: translateY(-1px);
+}
+
+.clear-filters-button:active {
+  transform: translateY(0);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .filter-panel {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .filter-header {
+    background: #4a5568;
+    border-bottom-color: #718096;
+  }
+  
+  .filter-title {
+    color: #e2e8f0;
+  }
+  
+  .filter-icon {
+    color: #a0aec0;
+  }
+  
+  .expand-button {
+    color: #a0aec0;
+  }
+  
+  .expand-button:hover {
+    background-color: #4a5568;
+    color: #e2e8f0;
+  }
+  
+  .filter-label {
+    color: #a0aec0;
+  }
+  
+  .filter-select {
+    background: #4a5568;
+    border-color: #718096;
+    color: #e2e8f0;
+  }
+  
+  .filter-select:hover {
+    border-color: #a0aec0;
+  }
+  
+  .filter-select:focus {
+    border-color: #3182ce;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .filter-content {
+    padding: 16px;
+  }
+  
+  .filter-header {
+    padding: 12px 16px;
+  }
+  
+  .filter-group {
+    margin-bottom: 16px;
+  }
+} 
