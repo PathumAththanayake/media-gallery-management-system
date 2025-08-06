@@ -8,7 +8,7 @@ import OTPVerification from '../components/OTPVerification';
 const RegisterPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { register, googleLogin, error } = useAuth();
+  const { register, error } = useAuth();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -56,7 +56,6 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    clearError();
 
     const validationError = validateForm();
     if (validationError) {
@@ -80,7 +79,8 @@ const RegisterPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    googleLogin();
+    // Redirect to backend Google OAuth endpoint
+    window.location.href = 'https://media-gallery-management-system-production.up.railway.app/api/auth/google';
   };
 
   const handleVerificationSuccess = (data) => {

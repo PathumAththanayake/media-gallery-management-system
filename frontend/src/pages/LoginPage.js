@@ -8,7 +8,7 @@ import OTPVerification from '../components/OTPVerification';
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, googleLogin, forgotPassword, verifyOTP, error, setUser } = useAuth();
+  const { login, forgotPassword, verifyOTP, error } = useAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -42,8 +42,7 @@ const LoginPage = () => {
       try {
         const userData = JSON.parse(decodeURIComponent(user));
         localStorage.setItem('token', token);
-        // Set user in context
-        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
         // Clear URL parameters and redirect
         navigate('/', { replace: true });
       } catch (error) {
@@ -52,7 +51,7 @@ const LoginPage = () => {
         navigate('/login', { replace: true });
       }
     }
-  }, [location, navigate, setUser]);
+  }, [location, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,7 +79,8 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    googleLogin();
+    // Redirect to backend Google OAuth endpoint
+    window.location.href = 'https://media-gallery-management-system-production.up.railway.app/api/auth/google';
   };
 
   const handleVerificationSuccess = (data) => {
