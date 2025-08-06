@@ -2,6 +2,27 @@
 
 A full-stack Media Gallery Web Application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) featuring secure authentication, media management, and contact form integration.
 
+## 🌐 Live Demo
+
+- **Frontend Application:** [https://pathumaththanayake.github.io/media-gallery-management-system](https://pathumaththanayake.github.io/media-gallery-management-system)
+- **Backend API:** [https://media-gallery-management-system-production.up.railway.app](https://media-gallery-management-system-production.up.railway.app)
+
+**🎯 Try the live demo to experience all features including authentication, media upload, gallery management, and contact forms!**
+
+## 🚀 Quick Start
+
+### Option 1: Live Demo (Recommended)
+1. Visit the **Frontend Application** link above
+2. Register a new account or use Google OAuth
+3. Start uploading and managing your media gallery
+4. Test all features including contact forms and admin panel
+
+### Option 2: Local Development
+1. Clone the repository
+2. Install dependencies for both frontend and backend
+3. Set up environment variables
+4. Run the development servers
+
 ## 🚀 Features
 
 ### 🔐 Authentication System
