@@ -30,10 +30,13 @@ const ContactManagementPage = () => {
   const fetchMessages = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const token = localStorage.getItem('token');
       
       if (!token) {
         setError('Please log in to view messages');
+        setLoading(false);
         return;
       }
 
@@ -44,22 +47,39 @@ const ContactManagementPage = () => {
         ...filters
       };
 
+      console.log('Fetching admin messages...', params);
+      console.log('API URL:', process.env.REACT_APP_API_URL);
+
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/contact/admin/all`, { 
         params,
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
       
-      setMessages(response.data.messages);
+      console.log('Messages response:', response.data);
+      
+      setMessages(response.data.messages || []);
       setPagination(prev => ({
         ...prev,
-        total: response.data.pagination.totalItems,
-        totalPages: response.data.pagination.totalPages
+        total: response.data.pagination?.totalItems || 0,
+        totalPages: response.data.pagination?.totalPages || 0
       }));
     } catch (error) {
-      setError('Failed to load messages');
       console.error('Error fetching messages:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (error.response?.status === 403) {
+        setError('Access denied. Admin privileges required.');
+      } else if (error.response?.status === 404) {
+        setError('Messages endpoint not found. Please check the API configuration.');
+      } else {
+        setError(`Failed to load messages: ${error.response?.data?.message || error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -187,13 +207,13 @@ const ContactManagementPage = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', icon: FiClock },
+      unread: { color: 'bg-yellow-100 text-yellow-800', icon: FiClock },
       read: { color: 'bg-blue-100 text-blue-800', icon: FiMessageSquare },
       replied: { color: 'bg-green-100 text-green-800', icon: FiCheck },
       resolved: { color: 'bg-gray-100 text-gray-800', icon: FiCheck }
     };
 
-    const config = statusConfig[status] || statusConfig.pending;
+    const config = statusConfig[status] || statusConfig.unread;
     const Icon = config.icon;
 
     return (
@@ -254,7 +274,7 @@ const ContactManagementPage = () => {
                 className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Status</option>
-                <option value="pending">Pending</option>
+                <option value="unread">Unread</option>
                 <option value="read">Read</option>
                 <option value="replied">Replied</option>
                 <option value="resolved">Resolved</option>
@@ -392,7 +412,7 @@ const ContactManagementPage = () => {
                               onChange={(e) => handleUpdateStatus(message._id, e.target.value)}
                               className="text-xs border border-gray-300 rounded px-2 py-1"
                             >
-                              <option value="pending">Pending</option>
+                              <option value="unread">Unread</option>
                               <option value="read">Read</option>
                               <option value="replied">Replied</option>
                               <option value="resolved">Resolved</option>

@@ -17,16 +17,50 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setError('Please log in to access admin dashboard');
+        setLoading(false);
+        return;
+      }
+
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
+      console.log('Fetching admin dashboard data...');
+      console.log('API URL:', process.env.REACT_APP_API_URL);
+
       const [statsResponse, activityResponse] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_URL}/api/admin/stats`),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/admin/recent-activity`)
+        axios.get(`${process.env.REACT_APP_API_URL}/api/admin/stats`, config),
+        axios.get(`${process.env.REACT_APP_API_URL}/api/admin/recent-activity`, config)
       ]);
+
+      console.log('Stats response:', statsResponse.data);
+      console.log('Activity response:', activityResponse.data);
 
       setStats(statsResponse.data.stats);
       setRecentActivity(activityResponse.data.activities || []);
     } catch (error) {
-      setError('Failed to load dashboard data');
       console.error('Error fetching dashboard data:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (error.response?.status === 403) {
+        setError('Access denied. Admin privileges required.');
+      } else if (error.response?.status === 404) {
+        setError('Admin dashboard not found. Please check the API configuration.');
+      } else {
+        setError(`Failed to load dashboard data: ${error.response?.data?.message || error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -39,14 +73,24 @@ const AdminDashboard = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 mb-4">{error}</div>
-          <button
-            onClick={fetchDashboardData}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Retry
-          </button>
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-600 mb-4 text-lg font-medium">{error}</div>
+          <div className="space-y-3">
+            <button
+              onClick={fetchDashboardData}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Retry
+            </button>
+            <div className="text-sm text-gray-600">
+              <p>If the problem persists, please:</p>
+              <ul className="list-disc list-inside mt-2">
+                <li>Check if you're logged in as an admin user</li>
+                <li>Verify the backend server is running</li>
+                <li>Check the browser console for more details</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     );

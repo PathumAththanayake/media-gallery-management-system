@@ -31,10 +31,13 @@ const UserContactPage = () => {
   const fetchMessages = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const token = localStorage.getItem('token');
       
       if (!token) {
         setError('Please log in to view your messages');
+        setLoading(false);
         return;
       }
 
@@ -45,22 +48,39 @@ const UserContactPage = () => {
         ...filters
       };
 
+      console.log('Fetching user messages...', params);
+      console.log('API URL:', process.env.REACT_APP_API_URL);
+
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/contact/my-messages`, { 
         params,
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
       
-      setMessages(response.data.messages);
+      console.log('User messages response:', response.data);
+      
+      setMessages(response.data.messages || []);
       setPagination(prev => ({
         ...prev,
-        total: response.data.pagination.totalItems,
-        totalPages: response.data.pagination.totalPages
+        total: response.data.pagination?.totalItems || 0,
+        totalPages: response.data.pagination?.totalPages || 0
       }));
     } catch (error) {
-      setError('Failed to load messages');
-      console.error('Error fetching messages:', error);
+      console.error('Error fetching user messages:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (error.response?.status === 403) {
+        setError('Access denied. You can only view your own messages.');
+      } else if (error.response?.status === 404) {
+        setError('Messages endpoint not found. Please check the API configuration.');
+      } else {
+        setError(`Failed to load messages: ${error.response?.data?.message || error.message}`);
+      }
     } finally {
       setLoading(false);
     }

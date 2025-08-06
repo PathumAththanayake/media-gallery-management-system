@@ -32,6 +32,6 @@ router.get('/admin/stats', authenticateToken, requireAdmin, getMessageStats);
 router.put('/admin/:id/status', authenticateToken, requireAdmin, updateMessageStatus);
 router.post('/admin/:id/reply', authenticateToken, requireAdmin, replyToMessage);
 router.delete('/admin/:id', authenticateToken, requireAdmin, deleteMessage);
-router.delete('/admin/bulk-delete', authenticateToken, requireAdmin, bulkDeleteMessages);
+router.post('/admin/bulk-delete', authenticateToken, requireAdmin, bulkDeleteMessages);
 
 module.exports = router; 

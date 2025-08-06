@@ -33,6 +33,7 @@ const getAdminStats = async (req, res) => {
     const totalMessages = await Contact.countDocuments({ isActive: true });
     const pendingMessages = await Contact.countDocuments({ status: 'unread', isActive: true });
     const repliedMessages = await Contact.countDocuments({ status: 'replied', isActive: true });
+    const resolvedMessages = await Contact.countDocuments({ status: 'resolved', isActive: true });
 
     // Monthly growth
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -81,7 +82,7 @@ const getAdminStats = async (req, res) => {
         totalMessages,
         pendingMessages,
         repliedMessages,
-        resolvedMessages: totalMessages - pendingMessages - repliedMessages,
+        resolvedMessages,
         
         // Growth stats
         growthRate

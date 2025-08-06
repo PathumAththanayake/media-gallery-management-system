@@ -124,7 +124,7 @@ const Navbar = () => {
                       Profile
                     </Link>
                     <Link
-                      to="/my-messages"
+                      to="/user/contact"
                       onClick={() => setIsUserMenuOpen(false)}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
@@ -271,7 +271,7 @@ const Navbar = () => {
                     Profile
                   </Link>
                   <Link
-                    to="/my-messages"
+                    to="/user/contact"
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center px-3 py-2 text-gray-700 hover:text-blue-600"
                   >
