@@ -8,7 +8,7 @@ import OTPVerification from '../components/OTPVerification';
 const RegisterPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { register, googleLogin, error, clearError } = useAuth();
+  const { register, googleLogin, error } = useAuth();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -41,7 +41,6 @@ const RegisterPage = () => {
       ...prev,
       [name]: value
     }));
-    clearError();
   };
 
   const validateForm = () => {
@@ -92,7 +91,6 @@ const RegisterPage = () => {
   const handleBackToRegistration = () => {
     setShowOTP(false);
     setRegistrationEmail('');
-    clearError();
   };
 
   if (isLoading) {

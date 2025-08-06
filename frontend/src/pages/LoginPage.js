@@ -8,7 +8,7 @@ import OTPVerification from '../components/OTPVerification';
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, googleLogin, forgotPassword, verifyOTP, error, clearError, setUser } = useAuth();
+  const { login, googleLogin, forgotPassword, verifyOTP, error, setUser } = useAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -30,7 +30,6 @@ const LoginPage = () => {
     const error = urlParams.get('error');
     
     if (error) {
-      clearError(); // Clear any previous errors
       // Set error message using the error state from context
       // We'll handle this by setting a local error state
       setMessage(decodeURIComponent(error));
@@ -49,12 +48,11 @@ const LoginPage = () => {
         navigate('/', { replace: true });
       } catch (error) {
         console.error('Error parsing user data:', error);
-        clearError(); // Clear any previous errors
         setMessage('Authentication failed');
         navigate('/login', { replace: true });
       }
     }
-  }, [location, navigate, clearError, setUser]);
+  }, [location, navigate, setUser]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -62,13 +60,11 @@ const LoginPage = () => {
       ...prev,
       [name]: value
     }));
-    clearError();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    clearError();
 
     const result = await login(formData.email, formData.password);
     
@@ -95,13 +91,11 @@ const LoginPage = () => {
   const handleBackToLogin = () => {
     setShowOTP(false);
     setUnverifiedEmail('');
-    clearError();
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    clearError();
 
     const result = await forgotPassword(formData.email);
     
@@ -116,7 +110,6 @@ const LoginPage = () => {
   const handleOTPSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    clearError();
 
     const result = await verifyOTP(formData.email, otp);
     
@@ -130,7 +123,6 @@ const LoginPage = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    clearError();
 
     const result = await forgotPassword(formData.email);
     
