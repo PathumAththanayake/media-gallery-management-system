@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -113,15 +113,7 @@ function AppContent() {
               } 
             />
             <Route 
-              path="/contact/manage" 
-              element={
-                <ProtectedRoute>
-                  <ContactPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/my-messages" 
+              path="/user/contact" 
               element={
                 <ProtectedRoute>
                   <UserContactPage />
@@ -133,7 +125,7 @@ function AppContent() {
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute requireAdmin={true}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } 
@@ -141,7 +133,7 @@ function AppContent() {
             <Route 
               path="/admin/users" 
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute requireAdmin={true}>
                   <UserManagementPage />
                 </ProtectedRoute>
               } 
@@ -149,7 +141,7 @@ function AppContent() {
             <Route 
               path="/admin/contacts" 
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute requireAdmin={true}>
                   <ContactManagementPage />
                 </ProtectedRoute>
               } 
@@ -157,8 +149,6 @@ function AppContent() {
             
             {/* Error Routes */}
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
-            
-            {/* 404 Route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
