@@ -1,0 +1,28 @@
+{
+  "name": "media-gallery-management-system",
+  "version": "1.0.0",
+  "description": "A full-stack Media Gallery Web Application built with MERN stack",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "build": "cd backend && npm install",
+    "dev": "cd backend && npm run dev"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PathumAththanayake/media-gallery-management-system.git"
+  },
+  "keywords": [
+    "mern",
+    "react",
+    "nodejs",
+    "express",
+    "mongodb",
+    "media-gallery"
+  ],
+  "author": "Pathum Aththanayake",
+  "license": "MIT"
+} 
